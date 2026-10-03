@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de Produção</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2f4f7;color:#1f2937;font-family:Arial,sans-serif}
+.app{max-width:680px;margin:auto;padding:12px}
+header{background:#111827;color:white;padding:20px;border-radius:16px;margin-bottom:14px}
+header h1{margin:0 0 5px;font-size:24px}
+header p{margin:0;opacity:.8}
+.card{background:white;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px #00000010}
+h2{margin:0 0 14px;font-size:18px}
+h3{margin:0;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
+input{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:10px;font-size:18px}
+.result{margin-top:14px;background:#f3f4f6;border-radius:12px;padding:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e5e7eb}
+.row:last-child{border:0}
+.value{font-weight:bold;text-align:right}
+.highlight{background:#e5e7eb;border-radius:10px;padding:13px;margin-top:10px;font-size:18px;font-weight:bold}
+.note{font-size:12px;color:#6b7280;line-height:1.4;margin-top:10px}
+.ok{background:#dcfce7;color:#166534}
+.danger{background:#fee2e2;color:#991b1b}
+.material{border:1px solid #d1d5db;border-radius:14px;padding:14px;margin-top:12px;background:#fafafa}
+.material-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.badge{font-size:12px;background:#e5e7eb;padding:5px 8px;border-radius:999px}
+.delivery{border:1px solid #d1d5db;border-radius:10px;padding:10px;margin-top:8px;background:white}
+.delivery-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:bold}
+button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:bold;cursor:pointer}
+.add{width:100%;margin-top:12px;background:#111827;color:white}
+.secondary{background:#e5e7eb;color:#1f2937}
+.remove{background:#fee2e2;color:#991b1b;padding:7px 10px;font-size:12px}
+.small{padding:8px 10px;font-size:12px}
+.empty{padding:12px;text-align:center;color:#6b7280;background:#f9fafb;border-radius:10px;font-size:13px}
+.limitante{margin-top:12px;padding:14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.app{padding:9px}.material-head{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+<h1>Calculadora de Produção</h1>
+<p id="appVersion">V1.2.0 — necessidade, abastecimento e até 4 P.I.</p>
+</header>
+
+<section class="card">
+<h2>1. Produção — P.A.</h2>
+<div class="grid">
+<div><label>Meta (caixas P.A.)</label><input id="meta" type="number" min="0" value="1008"></div>
+<div><label>Kits por caixa P.A.</label><input id="kitsCx" type="number" min="0" value="12"></div>
+</div>
+<div class="result">
+<div class="row"><span>Produção planejada</span><span class="value" id="totalKits">0 kits</span></div>
+</div>
+</section>
+
+<section class="card">
+<h2>2. Materiais — P.I.</h2>
+<div id="materiais"></div>
+<button class="add" id="btnAddMaterial" type="button">+ Adicionar material P.I.</button>
+<div class="note">Até 4 P.I. diferentes. O código identifica o material. O abastecimento é lançado conforme a logística coloca o material na linha.</div>
+</section>
+
+<section class="card">
+<h2>3. Resultado da produção</h2>
+<div class="result">
+<div class="row"><span>Meta</span><span class="value" id="resMeta">0 caixas</span></div>
+<div class="row"><span>Produção possível com o abastecido</span><span class="value" id="prodPossivel">0 caixas</span></div>
+<div class="row"><span>Kits possíveis</span><span class="value" id="kitsPossiveis">0 kits</span></div>
+<div class="highlight" id="resStatus">Configure os materiais P.I.</div>
+<div class="note" id="resDetalhe">—</div>
+</div>
+</section>
+
+<section class="card">
+<h2>4. Resumo dos materiais</h2>
+<div id="resumoMateriais"></div>
+</section>
+
+<section class="card">
+<h2>⚙️ Sistema</h2>
+<div class="result">
+<div class="row"><span>Versão instalada</span><span class="value">V1.2.0</span></div>
+<div class="row"><span>Status</span><span class="value">Pronto</span></div>
+<div class="note">Os dados são salvos automaticamente neste aparelho.</div>
+</div>
+</section>
+
+</div>
+
+<script>
+const APP_VERSION="1.2.0";
+const STORAGE_KEY="calculadora_producao_v1_2_0";
+const OLD_STORAGE_KEY="calculadora_producao_v0_4";
+
+let materiais=[
+ {codigo:"",uso:1,unCx:48,cxPal:72,extra:0,abastecimentos:[]}
+];
+
+function num(v){
+ const n=Number(v);
+ return Number.isFinite(n)&&n>=0?n:0;
+}
+function fmt(v){
+ return Math.round(v).toLocaleString("pt-BR");
+}
+function esc(v){
+ return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function salvarDados(){
+ localStorage.setItem(STORAGE_KEY,JSON.stringify({
+   meta:document.getElementById("meta").value,
+   kitsCx:document.getElementById("kitsCx").value,
+   materiais
+ }));
+}
+
+function carregarDados(){
+ try{
+   const atual=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+   if(atual){
+     if(atual.meta!==undefined)document.getElementById("meta").value=atual.meta;
+     if(atual.kitsCx!==undefined)document.getElementById("kitsCx").value=atual.kitsCx;
+     if(Array.isArray(atual.materiais)&&atual.materiais.length)materiais=atual.materiais.slice(0,4);
+     return;
+   }
+
+   const antigo=JSON.parse(localStorage.getItem(OLD_STORAGE_KEY)||"null");
+   if(antigo){
+     if(antigo.meta!==undefined)document.getElementById("meta").value=antigo.meta;
+     if(antigo.paCx!==undefined)document.getElementById("kitsCx").value=antigo.paCx;
+
+     const m=materiais[0];
+     if(antigo.piCx!==undefined)m.unCx=num(antigo.piCx);
+     if(antigo.cxPalete!==undefined)m.cxPal=num(antigo.cxPalete);
+
+     let caixas=0,unidades=num(antigo.unSep);
+     const paletes=num(antigo.palFech);
+
+     if(Array.isArray(antigo.paletes)){
+       antigo.paletes.forEach(p=>{
+         caixas+=num(p.caixas);
+         unidades+=num(p.unidades);
+       });
+     }
+
+     if(paletes||caixas||unidades){
+       m.abastecimentos=[{paletes,caixas,unidades}];
+     }
+
+     m.extra=num(antigo.packs)*num(antigo.unPack)+num(antigo.perdas);
+   }
+ }catch(e){}
+}
+
+function totalRecebido(m){
+ const unCx=num(m.unCx),cxPal=num(m.cxPal);
+ return (m.abastecimentos||[]).reduce((s,a)=>
+   s+num(a.paletes)*cxPal*unCx+num(a.caixas)*unCx+num(a.unidades),0);
+}
+
+function capacidadeKits(m,recebido){
+ const uso=num(m.uso);
+ if(uso<=0)return 0;
+ return Math.floor(Math.max(0,recebido-num(m.extra))/uso);
+}
+
+function detalheEmbalagem(unidades,m){
+ const unCx=num(m.unCx),cxPal=num(m.cxPal);
+ if(unidades<=0||unCx<=0)return "0 UN";
+
+ const caixas=Math.floor(unidades/unCx);
+ const soltas=unidades%unCx;
+ const paletes=cxPal>0?Math.floor(caixas/cxPal):0;
+ const avulsas=cxPal>0?caixas%cxPal:caixas;
+
+ let partes=[];
+ if(paletes)partes.push(fmt(paletes)+" palete(s)");
+ if(avulsas)partes.push(fmt(avulsas)+" caixa(s) avulsa(s)");
+ if(soltas)partes.push(fmt(seltas)+" UN");
+
+ return partes.join(" + ")||"0 UN";
+}
+
+function renderMateriais(){
+ const box=document.getElementById("materiais");
+
+ box.innerHTML=materiais.map((m,i)=>{
+   const recebido=totalRecebido(m);
+   const totalKits=num(document.getElementById("meta").value)*num(document.getElementById("kitsCx").value);
+   const necessidade=totalKits*num(m.uso)+num(m.extra);
+   const restante=Math.max(0,necessidade-recebido);
+   const sobra=Math.max(0,recebido-necessidade);
+   const palUn=num(m.unCx)*num(m.cxPal);
+   const entregas=m.abastecimentos||[];
+
+   return '<div class="material">'+
+     '<div class="material-head"><h3>🧩 P.I. '+(i+1)+'</h3><span class="badge">'+(i===0?'principal':'material')+'</span></div>'+
+     '<div class="grid">'+
+       '<div><label>Código do P.I.</label><input data-mi="'+i+'" data-field="codigo" type="text" value="'+esc(m.codigo)+'" placeholder="Ex.: PI001"></div>'+
+       '<div><label>Uso por kit</label><input data-mi="'+i+'" data-field="uso" type="number" min="0" step="0.01" value="'+num(m.uso)+'"></div>'+
+       '<div><label>UN por caixa</label><input data-mi="'+i+'" data-field="unCx" type="number" min="0" value="'+num(m.unCx)+'"></div>'+
+       '<div><label>Caixas por palete</label><input data-mi="'+i+'" data-field="cxPal" type="number" min="0" value="'+num(m.cxPal)+'"></div>'+
+       '<div><label>Compensação extra (UN)</label><input data-mi="'+i+'" data-field="extra" type="number" min="0" value="'+num(m.extra)+'"></div>'+
+     '</div>'+
+     '<div class="result">'+
+       '<div class="row"><span>1 palete</span><span class="value">'+fmt(palUn)+' UN</span></div>'+
+       '<div class="row"><span>Necessidade</span><span class="value">'+fmt(necessidade)+' UN</span></div>'+
+       '<div class="row"><span>Abastecido</span><span class="value">'+fmt(recebido)+' UN</span></div>'+
+       '<div class="row"><span>Restante</span><span class="value">'+fmt(restante)+' UN</span></div>'+
+       (sobra?'<div class="row"><span>Sobra após a necessidade</span><span class="value">+'+fmt(sobra)+' UN</span></div>':'')+
+       '<div class="row"><span>Produção que o abastecido sustenta</span><span class="value">'+fmt(capacidadeKits(m,recebido))+' kits</span></div>'+
+       '<div class="note">Necessidade em embalagem: '+detalheEmbalagem(necessidade,m)+'</div>'+
+       (restante?'<div class="note">Ainda falta: '+detalheEmbalagem(restante,m)+'</div>':'<div class="note">Necessidade atendida.</div>')+
+     '</div>'+
+     '<div style="margin-top:14px"><b>📥 Abastecimentos na linha</b><div id="entregas-'+i+'">'+
+       (entregas.length?entregas.map((a,j)=>
+         '<div class="delivery"><div class="delivery-head"><span>Abastecimento '+(j+1)+'</span><button class="remove small" type="button" data-remove="'+i+'" data-delivery="'+j+'">Remover</button></div>'+
+         '<div class="note">'+fmt(num(a.paletes))+' palete(s) + '+fmt(num(a.caixas))+' caixa(s) + '+fmt(num(a.unidades))+' UN = '+fmt(num(a.paletes)*num(m.cxPal)*num(m.unCx)+num(a.caixas)*num(m.unCx)+num(a.unidades))+' UN</div></div>'
+       ).join(""):'<div class="empty">Nenhum abastecimento registrado.</div>')+
+     '</div></div>'+
+     '<div class="grid" style="margin-top:12px">'+
+       '<div><label>Paletes fechados</label><input id="p-'+i+'" type="number" min="0" value="0"></div>'+
+       '<div><label>Caixas avulsas</label><input id="c-'+i+'" type="number" min="0" value="0"></div>'+
+       '<div><label>Unidades avulsas</label><input id="u-'+i+'" type="number" min="0" value="0"></div>'+
+       '<div style="display:flex;align-items:end"><button class="secondary" style="width:100%" type="button" data-add="'+i+'">+ Registrar abastecimento</button></div>'+
+     '</div>'+
+     (materiais.length>1?'<button class="remove" style="margin-top:12px;width:100%" type="button" data-remove-material="'+i+'">Remover este P.I.</button>':'')+
+   '</div>';
+ }).join("");
+
+ document.getElementById("btnAddMaterial").style.display=materiais.length>=4?"none":"block";
+}
+
+function calc(){
+ const meta=num(document.getElementById("meta").value);
+ const kitsCx=num(document.getElementById("kitsCx").value);
+ const totalKits=meta*kitsCx;
+
+ document.getElementById("totalKits").textContent=fmt(totalKits)+" kits";
+ document.getElementById("resMeta").textContent=fmt(meta)+" caixas";
+
+ const ativos=materiais.filter(m=>num(m.uso)>0);
+ const capacidades=ativos.map(m=>({m,cap:capacidadeKits(m,totalRecebido(m))}));
+
+ let kitsPossiveis=0;
+ let limitante=null;
+
+ if(ativos.length){
+   kitsPossiveis=Math.min(...capacidades.map(x=>x.cap));
+   limitante=capacidades.find(x=>x.cap===kitsPossiveis);
+ }
+
+ const caixasPossiveis=kitsCx>0?Math.floor(kitsPossiveis/kitsCx):0;
+
+ document.getElementById("prodPossivel").textContent=fmt(caixasPossiveis)+" caixas";
+ document.getElementById("kitsPossiveis").textContent=fmt(kitsPossiveis)+" kits";
+
+ const status=document.getElementById("resStatus");
+ const detalhe=document.getElementById("resDetalhe");
+
+ if(!ativos.length){
+   status.className="highlight";
+   status.textContent="Configure pelo menos um P.I.";
+   detalhe.textContent="—";
+ }else if(!capacidades.some(x=>totalRecebido(x.m)>0)){
+   status.className="highlight";
+   status.textContent="Aguardando abastecimento";
+   detalhe.textContent="Registre o material conforme a logística colocar na linha.";
+ }else if(caixasPossiveis<meta){
+   status.className="highlight danger";
+   status.textContent="Produção ainda não atende a meta";
+   detalhe.textContent="Faltam "+fmt(meta-caixasPossiveis)+" caixa(s). Material limitante: "+(limitante&&limitante.m.codigo?limitante.m.codigo:"P.I. "+(capacidades.indexOf(limitante)+1))+".";
+ }else{
+   status.className="highlight ok";
+   status.textContent="Meta atendida com o abastecido";
+   detalhe.textContent="Todos os P.I. configurados sustentam a produção planejada.";
+ }
+
+ document.getElementById("resumoMateriais").innerHTML=ativos.map(m=>{
+   const rec=totalRecebido(m);
+   const need=totalKits*num(m.uso)+num(m.extra);
+   const rest=Math.max(0,need-rec);
+   return '<div class="row"><span>'+(m.codigo?esc(m.codigo):"P.I. sem código")+'</span><span class="value">'+fmt(rest)+' UN restantes</span></div>';
+ }).join("")||'<div class="empty">Nenhum P.I. configurado.</div>';
+}
+
+document.addEventListener("input",e=>{
+ const mi=e.target.dataset.mi;
+ const field=e.target.dataset.field;
+
+ if(mi!==undefined&&field){
+   materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
+   salvarDados();
+   calc();
+ }
+
+ if(e.target.id==="meta"||e.target.id==="kitsCx"){
+   salvarDados();
+   renderMateriais();
+   calc();
+ }
+});
+
+document.addEventListener("click",e=>{
+ const add=e.target.closest("[data-add]");
+ if(add){
+   const i=Number(add.dataset.add);
+   const p=num(document.getElementById("p-"+i).value);
+   const c=num(document.getElementById("c-"+i).value);
+   const u=num(document.getElementById("u-"+i).value);
+
+   if(p||c||u){
+     materiais[i].abastecimentos=materiais[i].abastecimentos||[];
+     materiais[i].abastecimentos.push({paletes:p,caixas:c,unidades:u});
+     salvarDados();
+     renderMateriais();
+     calc();
+   }
+   return;
+ }
+
+ const rem=e.target.closest("[data-remove]");
+ if(rem){
+   const i=Number(rem.dataset.remove);
+   const j=Number(rem.dataset.delivery);
+   materiais[i].abastecimentos.splice(j,1);
+   salvarDados();
+   renderMateriais();
+   calc();
+   return;
+ }
+
+ const rm=e.target.closest("[data-remove-material]");
+ if(rm){
+   if(materiais.length<=1)return;
+   materiais.splice(Number(rm.dataset.removeMaterial),1);
+   salvarDados();
+   renderMateriais();
+   calc();
+   return;
+ }
+
+ if(e.target.id==="btnAddMaterial"){
+   if(materiais.length>=4)return;
+   materiais.push({codigo:"",uso:1,unCx:0,cxPal:0,extra:0,abastecimentos:[]});
+   salvarDados();
+   renderMateriais();
+   calc();
+ }
+});
+
+carregarDados();
+renderMateriais();
+calc();
+</script>
+</body>
+</html>
