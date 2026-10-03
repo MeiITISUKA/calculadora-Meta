@@ -183,7 +183,7 @@ function detalheEmbalagem(unidades,m){
  let partes=[];
  if(paletes)partes.push(fmt(paletes)+" palete(s)");
  if(avulsas)partes.push(fmt(avulsas)+" caixa(s) avulsa(s)");
- if(soltas)partes.push(fmt(seltas)+" UN");
+ if(soltas)partes.push(fmt(soltas)+" UN");
 
  return partes.join(" + ")||"0 UN";
 }
