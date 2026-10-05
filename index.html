@@ -42,7 +42,6 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 </head>
 <body>
 <div class="app">
-
 <header>
 <h1>Calculadora de Produção</h1>
 <p id="appVersion">V1.2 — necessidade, abastecimento e até 4 P.I.</p>
@@ -90,7 +89,6 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 <div class="note">Os dados são salvos automaticamente neste aparelho.</div>
 </div>
 </section>
-
 </div>
 
 <script>
@@ -99,7 +97,7 @@ const STORAGE_KEY="calculadora_producao_v1_2_0";
 const OLD_STORAGE_KEY="calculadora_producao_v0_4";
 
 let materiais=[
- {codigo:"",uso:1,unCx:48,cxPal:72,extra:0,abastecimentos:[]}
+ {codigo:"",uso:1,unCx:48,cxPal:72,amostra:0,extra:0,abastecimentos:[]}
 ];
 
 function num(v){
@@ -127,7 +125,14 @@ function carregarDados(){
    if(atual){
      if(atual.meta!==undefined)document.getElementById("meta").value=atual.meta;
      if(atual.kitsCx!==undefined)document.getElementById("kitsCx").value=atual.kitsCx;
-     if(Array.isArray(atual.materiais)&&atual.materiais.length)materiais=atual.materiais.slice(0,4);
+     if(Array.isArray(atual.materiais)&&atual.materiais.length){
+       materiais=atual.materiais.slice(0,4);
+       materiais.forEach(m=>{
+         if(m.amostra===undefined)m.amostra=0;
+         if(m.extra===undefined)m.extra=0;
+         if(!Array.isArray(m.abastecimentos))m.abastecimentos=[];
+       });
+     }
      return;
    }
 
@@ -168,7 +173,14 @@ function totalRecebido(m){
 function capacidadeKits(m,recebido){
  const uso=num(m.uso);
  if(uso<=0)return 0;
- return Math.floor(Math.max(0,recebido-(num(m.amostra)*num(m.uso))-num(m.extra))/uso);
+ const retencaoUn=num(m.amostra)*uso;
+ return Math.floor(Math.max(0,recebido-retencaoUn-num(m.extra))/uso);
+}
+
+function necessidadeMaterial(m,totalKits){
+ const uso=num(m.uso);
+ const retencaoUn=num(m.amostra)*uso;
+ return totalKits*uso+retencaoUn+num(m.extra);
 }
 
 function detalheEmbalagem(unidades,m){
@@ -194,7 +206,7 @@ function renderMateriais(){
  box.innerHTML=materiais.map((m,i)=>{
    const recebido=totalRecebido(m);
    const totalKits=num(document.getElementById("meta").value)*num(document.getElementById("kitsCx").value);
-   const necessidade=totalKits*num(m.uso)+(num(m.amostra)*num(m.uso))+num(m.extra);
+   const necessidade=necessidadeMaterial(m,totalKits);
    const restante=Math.max(0,necessidade-recebido);
    const sobra=Math.max(0,recebido-necessidade);
    const palUn=num(m.unCx)*num(m.cxPal);
@@ -204,11 +216,11 @@ function renderMateriais(){
      '<div class="material-head"><h3>🧩 P.I. '+(i+1)+'</h3><span class="badge">'+(i===0?'principal':'material')+'</span></div>'+
      '<div class="grid">'+
        '<div><label>Código do P.I.</label><input data-mi="'+i+'" data-field="codigo" type="text" value="'+esc(m.codigo)+'" placeholder="Ex.: PI001"></div>'+
-       '<div><label>Uso por kit</label><input data-mi="'+i+'" data-field="uso" type="number" min="0" step="0.01" value="'+num(m.uso)+'"></div>'+
+       '<div><label>Uso por Kit</label><input data-mi="'+i+'" data-field="uso" type="number" min="0" step="0.01" value="'+num(m.uso)+'"></div>'+
        '<div><label>UN por caixa</label><input data-mi="'+i+'" data-field="unCx" type="number" min="0" value="'+num(m.unCx)+'"></div>'+
        '<div><label>Caixas por palete</label><input data-mi="'+i+'" data-field="cxPal" type="number" min="0" value="'+num(m.cxPal)+'"></div>'+
        '<div><label>Retenção (Kit)</label><input data-mi="'+i+'" data-field="amostra" type="number" min="0" value="'+num(m.amostra)+'"></div>'+
-'<div><label>Perda / compensação (UN)</label><input data-mi="'+i+'" data-field="extra" type="number" min="0" value="'+num(m.extra)+'"></div>'+
+       '<div><label>Perda / compensação (UN)</label><input data-mi="'+i+'" data-field="extra" type="number" min="0" value="'+num(m.extra)+'"></div>'+
      '<div class="result">'+
        '<div class="row"><span>1 palete</span><span class="value">'+fmt(palUn)+' UN</span></div>'+
        '<div class="row"><span>Necessidade</span><span class="value">'+fmt(necessidade)+' UN</span></div>'+
@@ -285,7 +297,7 @@ function calc(){
 
  document.getElementById("resumoMateriais").innerHTML=ativos.map(m=>{
    const rec=totalRecebido(m);
-   const need=totalKits*num(m.uso)+(num(m.amostra)*num(m.uso))+num(m.extra);
+   const need=necessidadeMaterial(m,totalKits);
    const rest=Math.max(0,need-rec);
    return '<div class="row"><span>'+(m.codigo?esc(m.codigo):"P.I. sem código")+'</span><span class="value">'+fmt(rest)+' UN restantes</span></div>';
  }).join("")||'<div class="empty">Nenhum P.I. configurado.</div>';
@@ -359,7 +371,7 @@ document.addEventListener("click",e=>{
 
  if(e.target.id==="btnAddMaterial"){
    if(materiais.length>=4)return;
-   materiais.push({codigo:"",uso:1,unCx:0,cxPal:0,extra:0,abastecimentos:[]});
+   materiais.push({codigo:"",uso:1,unCx:0,cxPal:0,amostra:0,extra:0,abastecimentos:[]});
    salvarDados();
    renderMateriais();
    calc();
