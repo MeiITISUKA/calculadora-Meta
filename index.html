@@ -168,7 +168,7 @@ function totalRecebido(m){
 function capacidadeKits(m,recebido){
  const uso=num(m.uso);
  if(uso<=0)return 0;
- return Math.floor(Math.max(0,recebido-num(m.amostra)-num(m.extra))/uso);
+ return Math.floor(Math.max(0,recebido-(num(m.amostra)*num(m.uso))-num(m.extra))/uso);
 }
 
 function detalheEmbalagem(unidades,m){
@@ -194,7 +194,7 @@ function renderMateriais(){
  box.innerHTML=materiais.map((m,i)=>{
    const recebido=totalRecebido(m);
    const totalKits=num(document.getElementById("meta").value)*num(document.getElementById("kitsCx").value);
-   const necessidade=totalKits*num(m.uso)+num(m.amostra)+num(m.extra);
+   const necessidade=totalKits*num(m.uso)+(num(m.amostra)*num(m.uso))+num(m.extra);
    const restante=Math.max(0,necessidade-recebido);
    const sobra=Math.max(0,recebido-necessidade);
    const palUn=num(m.unCx)*num(m.cxPal);
@@ -207,7 +207,7 @@ function renderMateriais(){
        '<div><label>Uso por kit</label><input data-mi="'+i+'" data-field="uso" type="number" min="0" step="0.01" value="'+num(m.uso)+'"></div>'+
        '<div><label>UN por caixa</label><input data-mi="'+i+'" data-field="unCx" type="number" min="0" value="'+num(m.unCx)+'"></div>'+
        '<div><label>Caixas por palete</label><input data-mi="'+i+'" data-field="cxPal" type="number" min="0" value="'+num(m.cxPal)+'"></div>'+
-       '<div><label>Amostra (UN)</label><input data-mi="'+i+'" data-field="amostra" type="number" min="0" value="'+num(m.amostra)+'"></div>'+
+       '<div><label>Retenção (Kit)</label><input data-mi="'+i+'" data-field="amostra" type="number" min="0" value="'+num(m.amostra)+'"></div>'+
 '<div><label>Perda / compensação (UN)</label><input data-mi="'+i+'" data-field="extra" type="number" min="0" value="'+num(m.extra)+'"></div>'+
      '<div class="result">'+
        '<div class="row"><span>1 palete</span><span class="value">'+fmt(palUn)+' UN</span></div>'+
@@ -285,7 +285,7 @@ function calc(){
 
  document.getElementById("resumoMateriais").innerHTML=ativos.map(m=>{
    const rec=totalRecebido(m);
-   const need=totalKits*num(m.uso)+num(m.extra);
+   const need=totalKits*num(m.uso)+(num(m.amostra)*num(m.uso))+num(m.extra);
    const rest=Math.max(0,need-rec);
    return '<div class="row"><span>'+(m.codigo?esc(m.codigo):"P.I. sem código")+'</span><span class="value">'+fmt(rest)+' UN restantes</span></div>';
  }).join("")||'<div class="empty">Nenhum P.I. configurado.</div>';
@@ -296,9 +296,19 @@ document.addEventListener("input",e=>{
  const field=e.target.dataset.field;
 
  if(mi!==undefined&&field){
-   materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
-   salvarDados();
-   calc();
+  materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
+  salvarDados();
+  calc();
+
+  if(field==="amostra"||field==="extra"){
+    const pos=e.target.selectionStart;
+    renderMateriais();
+    const novo=document.querySelector('[data-mi="'+mi+'"][data-field="'+field+'"]');
+    if(novo){
+      novo.focus();
+      if(pos!==null)novo.setSelectionRange(pos,pos);
+    }
+  }
  }
 
  if(e.target.id==="meta"||e.target.id==="kitsCx"){
