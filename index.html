@@ -4,383 +4,1653 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Calculadora de Produção</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f2f4f7;color:#1f2937;font-family:Arial,sans-serif}
-.app{max-width:680px;margin:auto;padding:12px}
-header{background:#111827;color:white;padding:20px;border-radius:16px;margin-bottom:14px}
-header h1{margin:0 0 5px;font-size:24px}
-header p{margin:0;opacity:.8}
-.card{background:white;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px #00000010}
-h2{margin:0 0 14px;font-size:18px}
-h3{margin:0;font-size:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
-input{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:10px;font-size:18px}
-.result{margin-top:14px;background:#f3f4f6;border-radius:12px;padding:14px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e5e7eb}
-.row:last-child{border:0}
-.value{font-weight:bold;text-align:right}
-.highlight{background:#e5e7eb;border-radius:10px;padding:13px;margin-top:10px;font-size:18px;font-weight:bold}
-.note{font-size:12px;color:#6b7280;line-height:1.4;margin-top:10px}
-.ok{background:#dcfce7;color:#166534}
-.danger{background:#fee2e2;color:#991b1b}
-.material{border:1px solid #d1d5db;border-radius:14px;padding:14px;margin-top:12px;background:#fafafa}
-.material-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-.badge{font-size:12px;background:#e5e7eb;padding:5px 8px;border-radius:999px}
-.delivery{border:1px solid #d1d5db;border-radius:10px;padding:10px;margin-top:8px;background:white}
-.delivery-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:bold}
-button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:bold;cursor:pointer}
-.add{width:100%;margin-top:12px;background:#111827;color:white}
-.secondary{background:#e5e7eb;color:#1f2937}
-.remove{background:#fee2e2;color:#991b1b;padding:7px 10px;font-size:12px}
-.small{padding:8px 10px;font-size:12px}
-.empty{padding:12px;text-align:center;color:#6b7280;background:#f9fafb;border-radius:10px;font-size:13px}
-.limitante{margin-top:12px;padding:14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.app{padding:9px}.material-head{align-items:flex-start}}
+
+body{
+ margin:0;
+ background:#f2f4f7;
+ color:#1f2937;
+ font-family:Arial,sans-serif
+}
+
+.app{
+ max-width:680px;
+ margin:auto;
+ padding:12px
+}
+
+header{
+ background:#111827;
+ color:white;
+ padding:20px;
+ border-radius:16px;
+ margin-bottom:14px
+}
+
+header h1{
+ margin:0 0 5px;
+ font-size:24px
+}
+
+header p{
+ margin:0;
+ opacity:.8
+}
+
+.card{
+ background:white;
+ border-radius:16px;
+ padding:18px;
+ margin-bottom:14px;
+ box-shadow:0 2px 8px #00000010
+}
+
+h2{
+ margin:0 0 14px;
+ font-size:18px
+}
+
+h3{
+ margin:0;
+ font-size:16px
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:12px
+}
+
+label{
+ display:block;
+ font-size:13px;
+ font-weight:bold;
+ margin-bottom:6px
+}
+
+input,
+select{
+ width:100%;
+ padding:13px;
+ border:1px solid #d1d5db;
+ border-radius:10px;
+ font-size:18px;
+ background:white
+}
+
+select{
+ cursor:pointer
+}
+
+.result{
+ margin-top:14px;
+ background:#f3f4f6;
+ border-radius:12px;
+ padding:14px
+}
+
+.row{
+ display:flex;
+ justify-content:space-between;
+ gap:12px;
+ padding:7px 0;
+ border-bottom:1px solid #e5e7eb
+}
+
+.row:last-child{
+ border:0
+}
+
+.value{
+ font-weight:bold;
+ text-align:right
+}
+
+.highlight{
+ background:#e5e7eb;
+ border-radius:10px;
+ padding:13px;
+ margin-top:10px;
+ font-size:18px;
+ font-weight:bold
+}
+
+.note{
+ font-size:12px;
+ color:#6b7280;
+ line-height:1.4;
+ margin-top:10px
+}
+
+.ok{
+ background:#dcfce7;
+ color:#166534
+}
+
+.warning{
+ background:#fef3c7;
+ color:#92400e
+}
+
+.danger{
+ background:#fee2e2;
+ color:#991b1b
+}
+
+.material{
+ border:1px solid #d1d5db;
+ border-radius:14px;
+ padding:14px;
+ margin-top:12px;
+ background:#fafafa
+}
+
+.material-head{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ margin-bottom:12px
+}
+
+.badge{
+ font-size:12px;
+ background:#e5e7eb;
+ padding:5px 8px;
+ border-radius:999px
+}
+
+.delivery{
+ border:1px solid #d1d5db;
+ border-radius:10px;
+ padding:10px;
+ margin-top:8px;
+ background:white
+}
+
+.delivery-head{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ font-size:13px;
+ font-weight:bold
+}
+
+button{
+ border:0;
+ border-radius:10px;
+ padding:11px 14px;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer
+}
+
+.add{
+ width:100%;
+ margin-top:12px;
+ background:#111827;
+ color:white
+}
+
+.secondary{
+ background:#e5e7eb;
+ color:#1f2937
+}
+
+.remove{
+ background:#fee2e2;
+ color:#991b1b;
+ padding:7px 10px;
+ font-size:12px
+}
+
+.small{
+ padding:8px 10px;
+ font-size:12px
+}
+
+.empty{
+ padding:12px;
+ text-align:center;
+ color:#6b7280;
+ background:#f9fafb;
+ border-radius:10px;
+ font-size:13px
+}
+
+.limitante{
+ margin-top:12px;
+ padding:14px;
+ border-radius:12px;
+ background:#fff7ed;
+ border:1px solid #fed7aa
+}
+
+.line-info{
+ background:#eff6ff;
+ border:1px solid #bfdbfe;
+ color:#1e40af;
+ border-radius:10px;
+ padding:10px;
+ margin-top:10px;
+ font-size:13px
+}
+
+@media(max-width:480px){
+ .grid{
+  grid-template-columns:1fr
+ }
+
+ .app{
+  padding:9px
+ }
+
+ .material-head{
+  align-items:flex-start
+ }
+}
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
 <header>
 <h1>Calculadora de Produção</h1>
-<p id="appVersion">V1.2 — necessidade, abastecimento e até 4 P.I.</p>
+<p id="appVersion">V1.3 — linhas, necessidade e abastecimento</p>
 </header>
 
+<!-- LINHA -->
 <section class="card">
+
+<h2>🏭 Linha de produção</h2>
+
+<label>Linha atual</label>
+
+<select id="linhaSelect">
+<option value="0">Linha 01</option>
+<option value="1">Linha 02</option>
+<option value="2">Linha 03</option>
+<option value="3">Linha 04</option>
+<option value="4">Linha 05</option>
+<option value="5">Linha 06</option>
+<option value="6">Linha 07</option>
+<option value="7">Linha 08</option>
+<option value="8">Linha 09</option>
+<option value="9">Linha 10</option>
+</select>
+
+<div class="line-info">
+Cada linha possui sua própria meta, materiais, retenção, perdas e abastecimentos.
+</div>
+
+</section>
+
+<!-- PRODUÇÃO -->
+<section class="card">
+
 <h2>1. Produção — P.A.</h2>
+
 <div class="grid">
-<div><label>Meta (caixas P.A.)</label><input id="meta" type="number" min="0" value="1008"></div>
-<div><label>Kits por caixa P.A.</label><input id="kitsCx" type="number" min="0" value="12"></div>
+
+<div>
+<label>Meta (caixas P.A.)</label>
+<input id="meta" type="number" min="0" value="1008">
 </div>
+
+<div>
+<label>Kits por caixa P.A.</label>
+<input id="kitsCx" type="number" min="0" value="12">
+</div>
+
+</div>
+
 <div class="result">
-<div class="row"><span>Produção planejada</span><span class="value" id="totalKits">0 kits</span></div>
+
+<div class="row">
+<span>Produção planejada</span>
+<span class="value" id="totalKits">0 kits</span>
 </div>
+
+</div>
+
 </section>
 
+<!-- MATERIAIS -->
 <section class="card">
+
 <h2>2. Materiais — P.I.</h2>
+
 <div id="materiais"></div>
-<button class="add" id="btnAddMaterial" type="button">+ Adicionar material P.I.</button>
-<div class="note">Até 4 P.I. diferentes. O código identifica o material. O abastecimento é lançado conforme a logística coloca o material na linha.</div>
+
+<button class="add" id="btnAddMaterial" type="button">
++ Adicionar material P.I.
+</button>
+
+<div class="note">
+Até 4 P.I. diferentes. O código identifica o material.
+O abastecimento é lançado conforme a logística coloca o material na linha.
+</div>
+
 </section>
 
+<!-- RESULTADO -->
 <section class="card">
+
 <h2>3. Resultado da produção</h2>
+
 <div class="result">
-<div class="row"><span>Meta</span><span class="value" id="resMeta">0 caixas</span></div>
-<div class="row"><span>Produção possível com o abastecido</span><span class="value" id="prodPossivel">0 caixas</span></div>
-<div class="row"><span>Kits possíveis</span><span class="value" id="kitsPossiveis">0 kits</span></div>
-<div class="highlight" id="resStatus">Configure os materiais P.I.</div>
-<div class="note" id="resDetalhe">—</div>
+
+<div class="row">
+<span>Meta</span>
+<span class="value" id="resMeta">0 caixas</span>
 </div>
+
+<div class="row">
+<span>Produção possível com o abastecido</span>
+<span class="value" id="prodPossivel">0 caixas</span>
+</div>
+
+<div class="row">
+<span>Kits possíveis</span>
+<span class="value" id="kitsPossiveis">0 kits</span>
+</div>
+
+<div class="highlight" id="resStatus">
+Configure os materiais P.I.
+</div>
+
+<div class="note" id="resDetalhe">
+—
+</div>
+
+</div>
+
 </section>
 
+<!-- RESUMO -->
 <section class="card">
+
 <h2>4. Resumo dos materiais</h2>
+
 <div id="resumoMateriais"></div>
+
 </section>
 
+<!-- SISTEMA -->
 <section class="card">
+
 <h2>⚙️ Sistema</h2>
+
 <div class="result">
-<div class="row"><span>Versão instalada</span><span class="value">V1.2.0</span></div>
-<div class="row"><span>Status</span><span class="value">Pronto</span></div>
-<div class="note">Os dados são salvos automaticamente neste aparelho.</div>
+
+<div class="row">
+<span>Versão instalada</span>
+<span class="value">V1.3.0</span>
 </div>
+
+<div class="row">
+<span>Status</span>
+<span class="value">Pronto</span>
+</div>
+
+<div class="note">
+Os dados são salvos automaticamente neste aparelho.
+Cada linha possui seus próprios dados.
+</div>
+
+</div>
+
 </section>
+
 </div>
 
 <script>
-const APP_VERSION="1.2.0";
-const STORAGE_KEY="calculadora_producao_v1_2_0";
-const OLD_STORAGE_KEY="calculadora_producao_v0_4";
 
-let materiais=[
- {codigo:"",uso:1,unCx:48,cxPal:72,amostra:0,extra:0,abastecimentos:[]}
-];
+const APP_VERSION="1.3.0";
+
+const STORAGE_KEY="calculadora_producao_v1_3_0";
+
+const OLD_STORAGE_KEY="calculadora_producao_v1_2_0";
+
+const OLD_V04_STORAGE_KEY="calculadora_producao_v0_4";
+
+const LINHAS=10;
+
+
+/* =========================
+   ESTRUTURA
+========================= */
+
+function novoMaterial(){
+
+ return {
+  codigo:"",
+  uso:1,
+  unCx:48,
+  cxPal:72,
+  amostra:0,
+  extra:0,
+  abastecimentos:[]
+ };
+
+}
+
+
+function novaLinha(){
+
+ return {
+  meta:1008,
+  kitsCx:12,
+  materiais:[novoMaterial()]
+ };
+
+}
+
+
+let linhas=Array.from(
+ {length:LINHAS},
+ ()=>novaLinha()
+);
+
+let linhaAtual=0;
+
+let materiais=linhas[0].materiais;
+
+
+/* =========================
+   FUNÇÕES BÁSICAS
+========================= */
 
 function num(v){
+
  const n=Number(v);
+
  return Number.isFinite(n)&&n>=0?n:0;
+
 }
+
+
 function fmt(v){
+
  return Math.round(v).toLocaleString("pt-BR");
+
 }
+
+
 function esc(v){
- return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+ return String(v??"")
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;");
+
 }
+
+
+/* =========================
+   NORMALIZAÇÃO
+========================= */
+
+function normalizarMaterial(m){
+
+ return {
+
+  codigo:m.codigo??"",
+
+  uso:num(m.uso??1),
+
+  unCx:num(m.unCx??48),
+
+  cxPal:num(m.cxPal??72),
+
+  amostra:num(m.amostra??0),
+
+  extra:num(m.extra??0),
+
+  abastecimentos:Array.isArray(m.abastecimentos)
+   ?m.abastecimentos.map(a=>({
+
+      paletes:num(a.paletes),
+      caixas:num(a.caixas),
+      unidades:num(a.unidades)
+
+    }))
+   :[]
+
+ };
+
+}
+
+
+function normalizarLinha(l){
+
+ return {
+
+  meta:num(l.meta??1008),
+
+  kitsCx:num(l.kitsCx??12),
+
+  materiais:Array.isArray(l.materiais)&&l.materiais.length
+   ?l.materiais.slice(0,4).map(normalizarMaterial)
+   :[novoMaterial()]
+
+ };
+
+}
+
+
+/* =========================
+   SALVAR
+========================= */
 
 function salvarDados(){
- localStorage.setItem(STORAGE_KEY,JSON.stringify({
-   meta:document.getElementById("meta").value,
-   kitsCx:document.getElementById("kitsCx").value,
-   materiais
- }));
+
+ linhas[linhaAtual].meta=
+  document.getElementById("meta").value;
+
+ linhas[linhaAtual].kitsCx=
+  document.getElementById("kitsCx").value;
+
+ linhas[linhaAtual].materiais=materiais;
+
+ localStorage.setItem(
+  STORAGE_KEY,
+  JSON.stringify({
+   linhaAtual,
+   linhas
+  })
+ );
+
 }
+
+
+/* =========================
+   CARREGAR
+========================= */
 
 function carregarDados(){
+
  try{
-   const atual=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
-   if(atual){
-     if(atual.meta!==undefined)document.getElementById("meta").value=atual.meta;
-     if(atual.kitsCx!==undefined)document.getElementById("kitsCx").value=atual.kitsCx;
-     if(Array.isArray(atual.materiais)&&atual.materiais.length){
-       materiais=atual.materiais.slice(0,4);
-       materiais.forEach(m=>{
-         if(m.amostra===undefined)m.amostra=0;
-         if(m.extra===undefined)m.extra=0;
-         if(!Array.isArray(m.abastecimentos))m.abastecimentos=[];
-       });
-     }
-     return;
+
+  const atual=
+   JSON.parse(
+    localStorage.getItem(STORAGE_KEY)||"null"
+   );
+
+
+  /* V1.3 */
+
+  if(atual){
+
+   if(Array.isArray(atual.linhas)){
+
+    linhas=Array.from(
+     {length:LINHAS},
+     (_,i)=>normalizarLinha(
+      atual.linhas[i]||novaLinha()
+     )
+    );
+
    }
 
-   const antigo=JSON.parse(localStorage.getItem(OLD_STORAGE_KEY)||"null");
-   if(antigo){
-     if(antigo.meta!==undefined)document.getElementById("meta").value=antigo.meta;
-     if(antigo.paCx!==undefined)document.getElementById("kitsCx").value=antigo.paCx;
+   linhaAtual=
+    Math.min(
+     Math.max(
+      num(atual.linhaAtual),
+      0
+     ),
+     LINHAS-1
+    );
 
-     const m=materiais[0];
-     if(antigo.piCx!==undefined)m.unCx=num(antigo.piCx);
-     if(antigo.cxPalete!==undefined)m.cxPal=num(antigo.cxPalete);
+   carregarLinhaAtual();
 
-     let caixas=0,unidades=num(antigo.unSep);
-     const paletes=num(antigo.palFech);
+   return;
 
-     if(Array.isArray(antigo.paletes)){
-       antigo.paletes.forEach(p=>{
-         caixas+=num(p.caixas);
-         unidades+=num(p.unidades);
-       });
-     }
+  }
 
-     if(paletes||caixas||unidades){
-       m.abastecimentos=[{paletes,caixas,unidades}];
-     }
 
-     m.extra=num(antigo.packs)*num(antigo.unPack)+num(antigo.perdas);
+  /* =========================
+     MIGRAÇÃO V1.2
+  ========================= */
+
+  const antigo=
+   JSON.parse(
+    localStorage.getItem(OLD_STORAGE_KEY)||"null"
+   );
+
+
+  if(antigo){
+
+   linhas[0]=normalizarLinha({
+
+    meta:antigo.meta,
+
+    kitsCx:antigo.kitsCx,
+
+    materiais:antigo.materiais
+
+   });
+
+   linhaAtual=0;
+
+   carregarLinhaAtual();
+
+   salvarDados();
+
+   return;
+
+  }
+
+
+  /* =========================
+     MIGRAÇÃO V0.4
+  ========================= */
+
+  const v04=
+   JSON.parse(
+    localStorage.getItem(OLD_V04_STORAGE_KEY)||"null"
+   );
+
+
+  if(v04){
+
+   const m=novoMaterial();
+
+
+   if(v04.piCx!==undefined)
+    m.unCx=num(v04.piCx);
+
+
+   if(v04.cxPalete!==undefined)
+    m.cxPal=num(v04.cxPalete);
+
+
+   let caixas=0;
+
+   let unidades=num(v04.unSep);
+
+   const paletes=num(v04.palFech);
+
+
+   if(Array.isArray(v04.paletes)){
+
+    v04.paletes.forEach(p=>{
+
+     caixas+=num(p.caixas);
+
+     unidades+=num(p.unidades);
+
+    });
+
    }
- }catch(e){}
+
+
+   if(paletes||caixas||unidades){
+
+    m.abastecimentos=[
+     {
+      paletes,
+      caixas,
+      unidades
+     }
+    ];
+
+   }
+
+
+   m.extra=
+    num(v04.packs)*
+    num(v04.unPack)+
+    num(v04.perdas);
+
+
+   linhas[0]=normalizarLinha({
+
+    meta:v04.meta,
+
+    kitsCx:v04.paCx,
+
+    materiais:[m]
+
+   });
+
+
+   linhaAtual=0;
+
+   carregarLinhaAtual();
+
+   salvarDados();
+
+   return;
+
+  }
+
+
+  carregarLinhaAtual();
+
+
+ }catch(e){
+
+  linhas=Array.from(
+   {length:LINHAS},
+   ()=>novaLinha()
+  );
+
+  linhaAtual=0;
+
+  carregarLinhaAtual();
+
+ }
+
 }
+
+
+/* =========================
+   TROCAR LINHA
+========================= */
+
+function carregarLinhaAtual(){
+
+ const linha=normalizarLinha(
+  linhas[linhaAtual]||novaLinha()
+ );
+
+ linhas[linhaAtual]=linha;
+
+ materiais=linha.materiais;
+
+ document.getElementById("linhaSelect").value=
+  String(linhaAtual);
+
+ document.getElementById("meta").value=
+  linha.meta;
+
+ document.getElementById("kitsCx").value=
+  linha.kitsCx;
+
+}
+
+
+/* =========================
+   RECEBIMENTO
+========================= */
 
 function totalRecebido(m){
- const unCx=num(m.unCx),cxPal=num(m.cxPal);
- return (m.abastecimentos||[]).reduce((s,a)=>
-   s+num(a.paletes)*cxPal*unCx+num(a.caixas)*unCx+num(a.unidades),0);
+
+ const unCx=num(m.unCx);
+
+ const cxPal=num(m.cxPal);
+
+ return (m.abastecimentos||[]).reduce(
+
+  (s,a)=>
+   s+
+   num(a.paletes)*cxPal*unCx+
+   num(a.caixas)*unCx+
+   num(a.unidades),
+
+  0
+
+ );
+
 }
+
+
+/* =========================
+   CAPACIDADE
+========================= */
 
 function capacidadeKits(m,recebido){
+
  const uso=num(m.uso);
- if(uso<=0)return 0;
- const retencaoUn=num(m.amostra)*uso;
- return Math.floor(Math.max(0,recebido-retencaoUn-num(m.extra))/uso);
+
+ if(uso<=0)
+  return 0;
+
+
+ const retencaoUn=
+  num(m.amostra)*uso;
+
+
+ return Math.floor(
+  Math.max(
+   0,
+   recebido-
+   retencaoUn-
+   num(m.extra)
+  )/uso
+ );
+
 }
+
+
+/* =========================
+   NECESSIDADE
+========================= */
 
 function necessidadeMaterial(m,totalKits){
+
  const uso=num(m.uso);
- const retencaoUn=num(m.amostra)*uso;
- return totalKits*uso+retencaoUn+num(m.extra);
+
+ const retencaoUn=
+  num(m.amostra)*uso;
+
+
+ return (
+  totalKits*uso+
+  retencaoUn+
+  num(m.extra)
+ );
+
 }
 
-function detalheEmbalagem(unidades,m){
- const unCx=num(m.unCx),cxPal=num(m.cxPal);
- if(unidades<=0||unCx<=0)return "0 UN";
 
- const caixas=Math.floor(unidades/unCx);
- const soltas=unidades%unCx;
- const paletes=cxPal>0?Math.floor(caixas/cxPal):0;
- const avulsas=cxPal>0?caixas%cxPal:caixas;
+/* =========================
+   FALTA EXATA
+========================= */
 
- let partes=[];
- if(paletes)partes.push(fmt(paletes)+" palete(s)");
- if(avulsas)partes.push(fmt(avulsas)+" caixa(s) avulsa(s)");
- if(soltas)partes.push(fmt(soltas)+" UN");
+function detalheFalta(unidades,m){
+
+ unidades=Math.max(
+  0,
+  Math.round(unidades)
+ );
+
+ const unCx=num(m.unCx);
+
+
+ if(unidades<=0)
+  return "0 UN";
+
+
+ if(unCx<=0)
+  return fmt(unidades)+" UN";
+
+
+ const caixas=
+  Math.floor(unidades/unCx);
+
+ const soltas=
+  unidades%unCx;
+
+
+ const partes=[];
+
+
+ if(caixas)
+  partes.push(
+   fmt(caixas)+" caixa(s)"
+  );
+
+
+ if(soltas)
+  partes.push(
+   fmt(soltas)+" UN"
+  );
+
 
  return partes.join(" + ")||"0 UN";
+
 }
+
+
+/* =========================
+   DETALHE DE EMBALAGEM
+========================= */
+
+function detalheEmbalagem(unidades,m){
+
+ const unCx=num(m.unCx);
+
+ const cxPal=num(m.cxPal);
+
+
+ if(unidades<=0||unCx<=0)
+  return "0 UN";
+
+
+ const caixas=
+  Math.floor(unidades/unCx);
+
+ const soltas=
+  unidades%unCx;
+
+
+ const paletes=
+  cxPal>0
+   ?Math.floor(caixas/cxPal)
+   :0;
+
+
+ const avulsas=
+  cxPal>0
+   ?caixas%cxPal
+   :caixas;
+
+
+ const partes=[];
+
+
+ if(paletes)
+  partes.push(
+   fmt(paletes)+" palete(s)"
+  );
+
+
+ if(avulsas)
+  partes.push(
+   fmt(avulsas)+" caixa(s) avulsa(s)"
+  );
+
+
+ if(soltas)
+  partes.push(
+   fmt(soltas)+" UN"
+  );
+
+
+ return partes.join(" + ")||"0 UN";
+
+}
+
+
+/* =========================
+   RENDER MATERIAIS
+========================= */
 
 function renderMateriais(){
- const box=document.getElementById("materiais");
 
- box.innerHTML=materiais.map((m,i)=>{
-   const recebido=totalRecebido(m);
-   const totalKits=num(document.getElementById("meta").value)*num(document.getElementById("kitsCx").value);
-   const necessidade=necessidadeMaterial(m,totalKits);
-   const restante=Math.max(0,necessidade-recebido);
-   const sobra=Math.max(0,recebido-necessidade);
-   const palUn=num(m.unCx)*num(m.cxPal);
-   const entregas=m.abastecimentos||[];
+ const box=
+  document.getElementById("materiais");
 
-   return '<div class="material">'+
-     '<div class="material-head"><h3>🧩 P.I. '+(i+1)+'</h3><span class="badge">'+(i===0?'principal':'material')+'</span></div>'+
-     '<div class="grid">'+
-       '<div><label>Código do P.I.</label><input data-mi="'+i+'" data-field="codigo" type="text" value="'+esc(m.codigo)+'" placeholder="Ex.: PI001"></div>'+
-       '<div><label>Uso por Kit</label><input data-mi="'+i+'" data-field="uso" type="number" min="0" step="0.01" value="'+num(m.uso)+'"></div>'+
-       '<div><label>UN por caixa</label><input data-mi="'+i+'" data-field="unCx" type="number" min="0" value="'+num(m.unCx)+'"></div>'+
-       '<div><label>Caixas por palete</label><input data-mi="'+i+'" data-field="cxPal" type="number" min="0" value="'+num(m.cxPal)+'"></div>'+
-       '<div><label>Retenção (Kit)</label><input data-mi="'+i+'" data-field="amostra" type="number" min="0" value="'+num(m.amostra)+'"></div>'+
-       '<div><label>Perda / compensação (UN)</label><input data-mi="'+i+'" data-field="extra" type="number" min="0" value="'+num(m.extra)+'"></div>'+
-     '<div class="result">'+
-       '<div class="row"><span>1 palete</span><span class="value">'+fmt(palUn)+' UN</span></div>'+
-       '<div class="row"><span>Necessidade</span><span class="value">'+fmt(necessidade)+' UN</span></div>'+
-       '<div class="row"><span>Abastecido</span><span class="value">'+fmt(recebido)+' UN</span></div>'+
-       '<div class="row"><span>Restante</span><span class="value">'+fmt(restante)+' UN</span></div>'+
-       (sobra?'<div class="row"><span>Sobra após a necessidade</span><span class="value">+'+fmt(sobra)+' UN</span></div>':'')+
-       '<div class="row"><span>Produção que o abastecido sustenta</span><span class="value">'+fmt(capacidadeKits(m,recebido))+' kits</span></div>'+
-       '<div class="note">Necessidade em embalagem: '+detalheEmbalagem(necessidade,m)+'</div>'+
-       (restante?'<div class="note">Ainda falta: '+detalheEmbalagem(restante,m)+'</div>':'<div class="note">Necessidade atendida.</div>')+
-     '</div>'+
-     '<div style="margin-top:14px"><b>📥 Abastecimentos na linha</b><div id="entregas-'+i+'">'+
-       (entregas.length?entregas.map((a,j)=>
-         '<div class="delivery"><div class="delivery-head"><span>Abastecimento '+(j+1)+'</span><button class="remove small" type="button" data-remove="'+i+'" data-delivery="'+j+'">Remover</button></div>'+
-         '<div class="note">'+fmt(num(a.paletes))+' palete(s) + '+fmt(num(a.caixas))+' caixa(s) + '+fmt(num(a.unidades))+' UN = '+fmt(num(a.paletes)*num(m.cxPal)*num(m.unCx)+num(a.caixas)*num(m.unCx)+num(a.unidades))+' UN</div></div>'
-       ).join(""):'<div class="empty">Nenhum abastecimento registrado.</div>')+
-     '</div></div>'+
-     '<div class="grid" style="margin-top:12px">'+
-       '<div><label>Paletes fechados</label><input id="p-'+i+'" type="number" min="0" value="0"></div>'+
-       '<div><label>Caixas avulsas</label><input id="c-'+i+'" type="number" min="0" value="0"></div>'+
-       '<div><label>Unidades avulsas</label><input id="u-'+i+'" type="number" min="0" value="0"></div>'+
-       '<div style="display:flex;align-items:end"><button class="secondary" style="width:100%" type="button" data-add="'+i+'">+ Registrar abastecimento</button></div>'+
-     '</div>'+
-     (materiais.length>1?'<button class="remove" style="margin-top:12px;width:100%" type="button" data-remove-material="'+i+'">Remover este P.I.</button>':'')+
-   '</div>';
- }).join("");
 
- document.getElementById("btnAddMaterial").style.display=materiais.length>=4?"none":"block";
+ box.innerHTML=
+  materiais.map((m,i)=>{
+
+   const recebido=
+    totalRecebido(m);
+
+
+   const totalKits=
+    num(document.getElementById("meta").value)*
+    num(document.getElementById("kitsCx").value);
+
+
+   const necessidade=
+    necessidadeMaterial(
+     m,
+     totalKits
+    );
+
+
+   const restante=
+    Math.max(
+     0,
+     necessidade-recebido
+    );
+
+
+   const sobra=
+    Math.max(
+     0,
+     recebido-necessidade
+    );
+
+
+   const palUn=
+    num(m.unCx)*
+    num(m.cxPal);
+
+
+   const entregas=
+    m.abastecimentos||[];
+
+
+   return `
+
+<div class="material">
+
+<div class="material-head">
+
+<h3>🧩 P.I. ${i+1}</h3>
+
+<span class="badge">
+${i===0?"principal":"material"}
+</span>
+
+</div>
+
+
+<div class="grid">
+
+<div>
+
+<label>Código do P.I.</label>
+
+<input
+ data-mi="${i}"
+ data-field="codigo"
+ type="text"
+ value="${esc(m.codigo)}"
+ placeholder="Ex.: PI001">
+
+</div>
+
+
+<div>
+
+<label>Uso por Kit</label>
+
+<input
+ data-mi="${i}"
+ data-field="uso"
+ type="number"
+ min="0"
+ step="0.01"
+ value="${num(m.uso)}">
+
+</div>
+
+
+<div>
+
+<label>UN por caixa</label>
+
+<input
+ data-mi="${i}"
+ data-field="unCx"
+ type="number"
+ min="0"
+ value="${num(m.unCx)}">
+
+</div>
+
+
+<div>
+
+<label>Caixas por palete</label>
+
+<input
+ data-mi="${i}"
+ data-field="cxPal"
+ type="number"
+ min="0"
+ value="${num(m.cxPal)}">
+
+</div>
+
+
+<div>
+
+<label>Retenção (Kit)</label>
+
+<input
+ data-mi="${i}"
+ data-field="amostra"
+ type="number"
+ min="0"
+ value="${num(m.amostra)}">
+
+</div>
+
+
+<div>
+
+<label>Perda / compensação (UN)</label>
+
+<input
+ data-mi="${i}"
+ data-field="extra"
+ type="number"
+ min="0"
+ value="${num(m.extra)}">
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="row">
+
+<span>1 palete</span>
+
+<span class="value">
+${fmt(palUn)} UN
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span>Necessidade</span>
+
+<span class="value">
+${fmt(necessidade)} UN
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span>Abastecido</span>
+
+<span class="value">
+${fmt(recebido)} UN
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span>Restante</span>
+
+<span class="value">
+${fmt(restante)} UN
+</span>
+
+</div>
+
+
+${sobra?`
+
+<div class="row">
+
+<span>Sobra após a necessidade</span>
+
+<span class="value">
++${fmt(sobra)} UN
+</span>
+
+</div>
+
+`:``}
+
+
+<div class="row">
+
+<span>
+Produção que o abastecido sustenta
+</span>
+
+<span class="value">
+${fmt(capacidadeKits(m,recebido))} kits
+</span>
+
+</div>
+
+
+<div class="note">
+
+Necessidade em embalagem:
+${detalheEmbalagem(
+ necessidade,
+ m
+)}
+
+</div>
+
+
+${
+ restante
+ ?
+ `<div class="note">
+ Ainda falta:
+ ${detalheEmbalagem(
+  restante,
+  m
+ )}
+ </div>`
+ :
+ `<div class="note">
+ Necessidade atendida.
+ </div>`
 }
+
+</div>
+
+
+<div style="margin-top:14px">
+
+<b>📥 Abastecimentos na linha</b>
+
+<div id="entregas-${i}">
+
+${
+ entregas.length
+ ?
+ entregas.map((a,j)=>`
+
+<div class="delivery">
+
+<div class="delivery-head">
+
+<span>
+Abastecimento ${j+1}
+</span>
+
+<button
+ class="remove small"
+ type="button"
+ data-remove="${i}"
+ data-delivery="${j}">
+Remover
+</button>
+
+</div>
+
+
+<div class="note">
+
+${fmt(num(a.paletes))}
+ palete(s) +
+
+${fmt(num(a.caixas))}
+ caixa(s) +
+
+${fmt(num(a.unidades))}
+ UN
+
+=
+
+${fmt(
+ num(a.paletes)*
+ num(m.cxPal)*
+ num(m.unCx)+
+ num(a.caixas)*
+ num(m.unCx)+
+ num(a.unidades)
+)}
+ UN
+
+</div>
+
+</div>
+
+`).join("")
+ :
+ `<div class="empty">
+ Nenhum abastecimento registrado.
+ </div>`
+}
+
+</div>
+
+</div>
+
+
+<div class="grid" style="margin-top:12px">
+
+<div>
+
+<label>Paletes fechados</label>
+
+<input
+ id="p-${i}"
+ type="number"
+ min="0"
+ value="0">
+
+</div>
+
+
+<div>
+
+<label>Caixas avulsas</label>
+
+<input
+ id="c-${i}"
+ type="number"
+ min="0"
+ value="0">
+
+</div>
+
+
+<div>
+
+<label>Unidades avulsas</label>
+
+<input
+ id="u-${i}"
+ type="number"
+ min="0"
+ value="0">
+
+</div>
+
+
+<div style="display:flex;align-items:end">
+
+<button
+ class="secondary"
+ style="width:100%"
+ type="button"
+ data-add="${i}">
+
++ Registrar abastecimento
+
+</button>
+
+</div>
+
+</div>
+
+
+${
+ materiais.length>1
+ ?
+ `<button
+ class="remove"
+ style="margin-top:12px;width:100%"
+ type="button"
+ data-remove-material="${i}">
+
+Remover este P.I.
+
+</button>`
+ :
+ ""
+}
+
+</div>
+
+`;
+
+  }).join("");
+
+
+ document.getElementById(
+  "btnAddMaterial"
+ ).style.display=
+  materiais.length>=4
+   ?"none"
+   :"block";
+
+}
+
+
+/* =========================
+   CÁLCULO PRINCIPAL
+========================= */
 
 function calc(){
- const meta=num(document.getElementById("meta").value);
- const kitsCx=num(document.getElementById("kitsCx").value);
- const totalKits=meta*kitsCx;
 
- document.getElementById("totalKits").textContent=fmt(totalKits)+" kits";
- document.getElementById("resMeta").textContent=fmt(meta)+" caixas";
+ const meta=
+  num(
+   document.getElementById("meta").value
+  );
 
- const ativos=materiais.filter(m=>num(m.uso)>0);
- const capacidades=ativos.map(m=>({m,cap:capacidadeKits(m,totalRecebido(m))}));
+
+ const kitsCx=
+  num(
+   document.getElementById("kitsCx").value
+  );
+
+
+ const totalKits=
+  meta*kitsCx;
+
+
+ document.getElementById(
+  "totalKits"
+ ).textContent=
+  fmt(totalKits)+" kits";
+
+
+ document.getElementById(
+  "resMeta"
+ ).textContent=
+  fmt(meta)+" caixas";
+
+
+ const ativos=
+  materiais.filter(
+   m=>num(m.uso)>0
+  );
+
+
+ const capacidades=
+  ativos.map(m=>({
+
+   m,
+
+   cap:capacidadeKits(
+    m,
+    totalRecebido(m)
+   )
+
+  }));
+
 
  let kitsPossiveis=0;
+
  let limitante=null;
 
+
  if(ativos.length){
-   kitsPossiveis=Math.min(...capacidades.map(x=>x.cap));
-   limitante=capacidades.find(x=>x.cap===kitsPossiveis);
+
+  kitsPossiveis=
+   Math.min(
+    ...capacidades.map(
+     x=>x.cap
+    )
+   );
+
+
+  limitante=
+   capacidades.find(
+    x=>x.cap===kitsPossiveis
+   );
+
  }
 
- const caixasPossiveis=kitsCx>0?Math.floor(kitsPossiveis/kitsCx):0;
 
- document.getElementById("prodPossivel").textContent=fmt(caixasPossiveis)+" caixas";
- document.getElementById("kitsPossiveis").textContent=fmt(kitsPossiveis)+" kits";
+ const caixasPossiveis=
+  kitsCx>0
+   ?Math.floor(
+     kitsPossiveis/kitsCx
+    )
+   :0;
 
- const status=document.getElementById("resStatus");
- const detalhe=document.getElementById("resDetalhe");
+
+ document.getElementById(
+  "prodPossivel"
+ ).textContent=
+  fmt(caixasPossiveis)+" caixas";
+
+
+ document.getElementById(
+  "kitsPossiveis"
+ ).textContent=
+  fmt(kitsPossiveis)+" kits";
+
+
+ const status=
+  document.getElementById(
+   "resStatus"
+  );
+
+
+ const detalhe=
+  document.getElementById(
+   "resDetalhe"
+  );
+
+
+ /* SEM MATERIAL */
 
  if(!ativos.length){
-   status.className="highlight";
-   status.textContent="Configure pelo menos um P.I.";
-   detalhe.textContent="—";
- }else if(!capacidades.some(x=>totalRecebido(x.m)>0)){
-   status.className="highlight";
-   status.textContent="Aguardando abastecimento";
-   detalhe.textContent="Registre o material conforme a logística colocar na linha.";
- }else if(caixasPossiveis<meta){
-   status.className="highlight danger";
-   status.textContent="Produção ainda não atende a meta";
-   detalhe.textContent="Faltam "+fmt(meta-caixasPossiveis)+" caixa(s). Material limitante: "+(limitante&&limitante.m.codigo?limitante.m.codigo:"P.I. "+(capacidades.indexOf(limitante)+1))+".";
- }else{
-   status.className="highlight ok";
-   status.textContent="Meta atendida com o abastecido";
-   detalhe.textContent="Todos os P.I. configurados sustentam a produção planejada.";
+
+  status.className="highlight";
+
+  status.textContent=
+   "Configure pelo menos um P.I.";
+
+  detalhe.textContent=
+   "—";
+
  }
 
- document.getElementById("resumoMateriais").innerHTML=ativos.map(m=>{
-   const rec=totalRecebido(m);
-   const need=necessidadeMaterial(m,totalKits);
-   const rest=Math.max(0,need-rec);
-   return '<div class="row"><span>'+(m.codigo?esc(m.codigo):"P.I. sem código")+'</span><span class="value">'+fmt(rest)+' UN restantes</span></div>';
- }).join("")||'<div class="empty">Nenhum P.I. configurado.</div>';
-}
 
-document.addEventListener("input",e=>{
- const mi=e.target.dataset.mi;
- const field=e.target.dataset.field;
+ /* SEM ABASTECIMENTO */
 
- if(mi!==undefined&&field){
-  materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
-  salvarDados();
-  calc();
+ else if(
+  !capacidades.some(
+   x=>totalRecebido(x.m)>0
+  )
+ ){
 
-  if(field==="amostra"||field==="extra"){
-    const pos=e.target.selectionStart;
-    renderMateriais();
-    const novo=document.querySelector('[data-mi="'+mi+'"][data-field="'+field+'"]');
-    if(novo){
-      novo.focus();
-      if(pos!==null)novo.setSelectionRange(pos,pos);
-    }
+  status.className="highlight";
+
+  status.textContent=
+   "Aguardando abastecimento";
+
+  detalhe.textContent=
+   "Registre o material conforme a logística colocar na linha.";
+
+ }
+
+
+ /* ABAIXO DA META */
+
+ else if(
+  caixasPossiveis<meta
+ ){
+
+  status.className=
+   "highlight danger";
+
+  status.textContent=
+   "Falta material para atingir a meta";
+
+
+  let faltaUn=0;
+
+  if(limitante){
+
+   faltaUn=
+    Math.max(
+     0,
+     necessidadeMaterial(
+      limitante.m,
+      totalKits
+     )-
+     totalRecebido(
+      limitante.m
+     )
+    );
+
   }
+
+
+  const nome=
+   limitante&&
+   limitante.m.codigo
+    ?limitante.m.codigo
+    :"P.I. "+
+     (
+      capacidades.indexOf(
+       limitante
+      )+1
+     );
+
+
+  detalhe.textContent=
+   "Faltam "+
+   detalheFalta(
+    faltaUn,
+    limitante
+     ?limitante.m
+     :novoMaterial()
+   )+
+   ". Material limitante: "+
+   nome+
+   ".";
+
  }
 
- if(e.target.id==="meta"||e.target.id==="kitsCx"){
-   salvarDados();
-   renderMateriais();
-   calc();
- }
-});
 
-document.addEventListener("click",e=>{
- const add=e.target.closest("[data-add]");
- if(add){
-   const i=Number(add.dataset.add);
-   const p=num(document.getElementById("p-"+i).value);
-   const c=num(document.getElementById("c-"+i).value);
-   const u=num(document.getElementById("u-"+i).value);
+ /* ACIMA DA META */
 
-   if(p||c||u){
-     materiais[i].abastecimentos=materiais[i].abastecimentos||[];
-     materiais[i].abastecimentos.push({paletes:p,caixas:c,unidades:u});
-     salvarDados();
-     renderMateriais();
-     calc();
-   }
-   return;
- }
+ else if(
+  caixasPossiveis>meta
+ ){
 
- const rem=e.target.closest("[data-remove]");
- if(rem){
-   const i=Number(rem.dataset.remove);
-   const j=Number(rem.dataset.delivery);
-   materiais[i].abastecimentos.splice(j,1);
-   salvarDados();
-   renderMateriais();
-   calc();
-   return;
+  status.className=
+   "highlight warning";
+
+  status.textContent=
+   "Possível divergência — produção acima da meta";
+
+
+  detalhe.textContent=
+   "Produção possível: "+
+   fmt(caixasPossiveis)+
+   " caixas. Meta: "+
+   fmt(meta)+
+   " caixas. Possível excedente: "+
+   fmt(caixasPossiveis-meta)+
+   " caixa(s).";
+
  }
 
- const rm=e.target.closest("[data-remove-material]");
- if(rm){
-   if(materiais.length<=1)return;
-   materiais.splice(Number(rm.dataset.removeMaterial),1);
-   salvarDados();
-   renderMateriais();
-   calc();
-   return;
+
+ /* EXATAMENTE NA META */
+
+ else{
+
+  status.className=
+   "highlight ok";
+
+  status.textContent=
+   "Meta atendida";
+
+
+  detalhe.textContent=
+   "A produção possível atende exatamente a meta planejada.";
+
  }
 
- if(e.target.id==="btnAddMaterial"){
-   if(materiais.length>=4)return;
-   materiais.push({codigo:"",uso:1,unCx:0,cxPal:0,amostra:0,extra:0,abastecimentos:[]});
-   salvarDados();
-   renderMateriais();
-   calc();
- }
-});
 
-carregarDados();
-renderMateriais();
-calc();
-</script>
-</body>
-</html>
+ /* RESUMO */
+
+ document.getElementById(
+  "resumoMateriais"
+ ).innerHTML=
+
+ ativos.map(m=>{
+
+  const rec=
+   totalRecebido(m);
+
+  const need=
+   necessidadeMaterial(
+    m,
+    totalKits
+   );
+
+  const rest=
+   Math.max(
+    0,
+    need-rec
+   );
+
+
+  return `
+
+<div class="row">
+
+<span>
+${m.codigo
+ ?esc(m.codigo)
+ :"P.I. sem c
