@@ -462,24 +462,16 @@ document.addEventListener("input",e=>{
  const mi=e.target.dataset.mi;
  const field=e.target.dataset.field;
 
+ // Enquanto a pessoa digita, atualiza os dados e o resultado sem redesenhar
+ // os campos. Isso mantém o teclado aberto no celular.
  if(mi!==undefined&&field){
   materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
   salvarDados();
   calc();
-
-  // Atualiza também a logística do P.I. enquanto os valores são editados.
-  // Evita redesenhar o campo numérico quando ele está temporariamente vazio.
-  if(e.target.value!==""){
-   const ativo=document.activeElement;
-   renderMateriais();
-   const novo=document.querySelector('[data-mi="'+mi+'"][data-field="'+field+'"]');
-   if(novo)novo.focus();
-  }
  }
 
  if(e.target.id==="meta"||e.target.id==="kitsCx"||e.target.id==="retencaoKits"){
   salvarDados();
-  renderMateriais();
   calc();
  }
 });
@@ -489,6 +481,12 @@ document.addEventListener("change",e=>{
  const field=e.target.dataset.field;
  if(mi!==undefined&&field){
   materiais[Number(mi)][field]=field==="codigo"?e.target.value:num(e.target.value);
+  salvarDados();
+  renderMateriais();
+  calc();
+  return;
+ }
+ if(e.target.id==="meta"||e.target.id==="kitsCx"||e.target.id==="retencaoKits"){
   salvarDados();
   renderMateriais();
   calc();
