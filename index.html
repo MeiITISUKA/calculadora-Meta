@@ -46,7 +46,7 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 <div class="app">
 <header>
 <h1>Calculadora de Produção</h1>
-<p id="appVersion">V1.3.4 — resumo de sobras em caixas</p>
+<p id="appVersion">V1.3.3 — resumo de sobras em caixas</p>
 </header>
 
 <section class="card">
@@ -87,7 +87,7 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 <h2>3. Resultado da produção</h2>
 <div class="result">
 <div class="row"><span>Meta</span><span class="value" id="resMeta">0 caixas</span></div>
-<div class="row"><span>Kits possíveis</span><span class="value" id="kitsPossiveis">0 kits</span></div>
+<div class="row"><span>Caixas possíveis</span><span class="value" id="kitsPossiveis">0 caixas</span></div>
 <div class="highlight" id="resStatus">Configure os materiais P.I.</div>
 </div>
 </section>
@@ -100,7 +100,7 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 <section class="card">
 <h2>⚙️ Sistema</h2>
 <div class="result">
-<div class="row"><span>Versão instalada</span><span class="value">V1.3.4</span></div>
+<div class="row"><span>Versão instalada</span><span class="value">V1.3.5</span></div>
 <div class="row"><span>Linha atual</span><span class="value" id="linhaAtualSistema">Linha 01</span></div>
 <div class="row"><span>Status</span><span class="value">Pronto</span></div>
 <div class="note">Os dados são salvos automaticamente neste aparelho.</div>
@@ -109,7 +109,7 @@ button{border:0;border-radius:10px;padding:11px 14px;font-size:15px;font-weight:
 </div>
 
 <script>
-const APP_VERSION="1.3.4";
+const APP_VERSION="1.3.5";
 const STORAGE_KEY="calculadora_producao_v1_3_3";
 const V12_STORAGE_KEY="calculadora_producao_v1_2_0";
 const OLD_STORAGE_KEY="calculadora_producao_v0_4";
@@ -431,7 +431,7 @@ function calc(){
  }
 
  const caixasPossiveis=kitsCx>0?Math.floor(kitsPossiveis/kitsCx):0;
- document.getElementById("kitsPossiveis").textContent=fmt(kitsPossiveis)+" kits";
+ document.getElementById("kitsPossiveis").textContent=fmt(caixasPossiveis)+" caixas";
 
  const status=document.getElementById("resStatus");
 
